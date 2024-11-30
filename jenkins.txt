@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+    environment {
+        AWS_REGION = 'us-west-2' // Set the AWS region
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Checkout the repository containing Terraform code
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false,extensions: [],userRemoteConfigs: [[url: 'https://github.com/vinayagarwal5/devops-aupostgresdb.git']]])
+            }
+        }
+        stage('Install Terraform') {
+            steps {
+                // Ensure Terraform is installed (if necessary)
+                sh '''
+                if ! [ -x "$(command -v terraform)" ]; then
+                    echo "Installing Terraform..."
+                    curl -fsSL https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip -o terraform.zip
+                    unzip terraform.zip
+                    mv terraform /usr/local/bin/
+                fi
+                '''
+            }
+        }
+        stage('Terraform Init') {
+            steps {
+                // Initialize Terraform
+				withAWS(credentials: 'vinay19856aws', region: 'us-west-2') {
+				sh 'aws s3 ls'
+				sh 'aws rds describe-db-instances'
+				}
+                sh 'terraform init'
+            }
+        }
+        stage('Terraform Plan') {
+            steps {
+                // Run Terraform plan
+                sh 'terraform plan -out=tfplan'
+            }
+        }
+        stage('Terraform Apply') {
+            steps {
+                // Apply Terraform configuration
+                sh 'terraform apply -auto-approve tfplan'
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs() // Clean up workspace
+        }
+        success {
+            echo 'RDS PostgreSQL database created successfully!'
+        }
+        failure {
+            echo 'Failed to create RDS PostgreSQL database.'
+        }
+    }
+}
