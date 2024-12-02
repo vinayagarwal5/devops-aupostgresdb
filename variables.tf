@@ -11,5 +11,5 @@ variable "db_password" {
 }
 
 variable "db_name" {
-  default = "auroradb"
+  default = "auroradb-vinay"
 }
