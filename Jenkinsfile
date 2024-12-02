@@ -10,7 +10,7 @@ pipeline {
         }
         stage('terraform'){
       environment {
-        AWS_REGION = 'us-west-1' // Set the AWS region
+        AWS_REGION = 'us-east-1' // Set the AWS region
         // Consume your Jenkins credential with the Role External ID
                 TF_VAR_assume_role_external_id = credentials('jenkins-infra-external-id')
                 // Provide the Role ARN. You could optionally also store this in a secret
