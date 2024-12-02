@@ -12,7 +12,7 @@ pipeline {
       environment {
         AWS_REGION = 'us-east-1' // Set the AWS region
         // Consume your Jenkins credential with the Role External ID
-                TF_VAR_assume_role_external_id = credentials('jenkins-infra-external-id')
+                TF_VAR_assume_role_external_id = credentials('devsecops-sa-jenkins')
                 // Provide the Role ARN. You could optionally also store this in a secret
                 TF_VAR_assume_role_arn = "arn:aws:iam::985912409436:role/BURoleForJenkins"
                 TF_IN_AUTOMATION = 1
